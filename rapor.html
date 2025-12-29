@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+   <meta charset="UTF-8">
+  <title>Kayıt Raporu</title>
+  <style>
+    /* --- Üst menü --- */
+    .menu {
+      text-align: center;
+      margin-bottom: 20px;
+      background: #007acc;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .menu a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+    .menu a:hover {
+      color: #ffeb3b;
+      transform: scale(1.1);
+    } 
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+      font-size: 16px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label, input {
+      display: block;
+      margin: 10px auto;
+      text-align: center;
+    }
+
+    input {
+      padding: 10px;
+      width: 90%;
+      max-width: 500px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      text-transform: uppercase; /* ekranda büyük harf */
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 15px;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+      font-size: 14px;
+      text-transform: uppercase; /* tablo hücreleri büyük harf */
+    }
+
+    th {
+      background: #007acc;
+      color: white;
+      position: sticky;
+      top: 0;
+    }
+
+    /* Fiyat sütunu sağa hizalı */
+    th.fiyat, td.fiyat {
+      text-align: right;
+    }
+
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+
+    tr:hover {
+      background: #e6f7ff;
+    }
+
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr { display: none; }
+      tr {
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background: #fff;
+        padding: 12px;
+      }
+      td {
+        border: none;
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        font-size: 18px;
+      }
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #007acc;
+      }
+      input {
+        width: 100%; /* mobilde tam genişlik */
+      }
+    }
+  </style>
+</head>
+<body>
+
+ <nav class="menu">
+    <a href="forum.html">📝 Kayıt Giriş</a>
+    <a href="rapor.html">📊 Rapor</a>
+  </nav>
+
+<h2>Kayıt Raporu</h2>
+
+<label for="searchInput">Ara:</label>
+<input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Kelime yaz...">
+
+<table id="raporTable">
+  <thead>
+    <tr>
+      <th>AD SOYAD</th>
+      <th>MARKA</th>
+      <th>MODEL</th>
+      <th>IMEI</th>
+      <th>İŞLEM</th>
+      <th class="fiyat">FİYAT</th>
+      <th>TARİH</th>
+      <th>NOT</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const url = "https://script.google.com/macros/s/AKfycbzb4SWk4Ihk8rMLIyNn6KhyNZU1bf0RCQJc84ML6FVqm3lA9XQgFp0Yg9R0Zgs6kzfLnQ/exec"; 
+let globalData = [];
+
+async function loadReport() {
+  const res = await fetch(url);
+  globalData = await res.json();
+  renderTable(globalData);
+}
+
+function formatTarih(isoString) {
+  if (!isoString) return "";
+  if (isoString.includes("T")) {
+    const d = new Date(isoString);
+    return d.toLocaleDateString("tr-TR", { day:"2-digit", month:"2-digit", year:"numeric" });
+  }
+  return isoString;
+}
+
+function renderTable(data) {
+  const tbody = document.querySelector("#raporTable tbody");
+  tbody.innerHTML = "";
+
+  const headers = ["AD SOYAD","MARKA","MODEL","IMEI","İŞLEM","FİYAT","TARİH","NOT"];
+
+  // Son kayıtları en üstte göstermek için ters çevir
+  data.slice().reverse().forEach(row => {
+    const tr = document.createElement("tr");
+    let i = 0;
+    Object.values(row).forEach(val => {
+      // Tüm alanlarda boşluk temizle ve büyük harfe çevir
+      val = String(val).trim().toUpperCase();
+
+      if (headers[i] === "TARİH" && val.includes("T")) {
+        const d = new Date(val);
+        val = d.toLocaleDateString("tr-TR", { day:"2-digit", month:"2-digit", year:"numeric" });
+      }
+
+      // Fiyat sütunu için sağa hizalama
+      const cellClass = headers[i] === "FİYAT" ? "fiyat" : "";
+      tr.innerHTML += `<td class="${cellClass}" data-label="${headers[i]}">${val}</td>`;
+      i++;
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+function filterTable() {
+  const query = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filtered = globalData.filter(row => {
+    return Object.values(row).some(val =>
+      String(val).toLowerCase().includes(query)
+    );
+  });
+  renderTable(filtered);
+}
+
+loadReport();
+</script>
+
+</body>
+</html>

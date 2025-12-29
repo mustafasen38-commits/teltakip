@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Kayıt Formu</title>
+  <!-- Mobil uyumluluk için eklenen satır -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+input, textarea, table td 
+{ text-transform: uppercase; }
+/* mevcut stiller burada */
+
+    /* --- Üst menü için ek CSS --- */
+    .menu {
+      text-align: center;
+      margin-bottom: 20px;
+      background: #007acc;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .menu a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      color: #ffeb3b;
+      transform: scale(1.1);
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f5f7fa;
+    }
+
+    form {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+      color: #333;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0,123,255,0.3);
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    #message {
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .col {
+      flex: 1;
+    }
+
+    .col label {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .input-group {
+      position: relative;
+    }
+    .input-group .suffix {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-weight: bold;
+      color: #555;
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      body { margin: 10px; }
+      form { padding: 15px; }
+      input, select, textarea, button { font-size: 16px; }
+      .row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="menu">
+    <a href="forum.html">📝 Kayıt Giriş</a>
+    <a href="rapor.html">📊 Rapor</a>
+  </nav>
+
+  <form id="myForm">
+    <label>Ad Soyad:</label>
+    <input type="text" name="name" required>
+
+    <div class="row">
+      <div class="col">
+        <label>Marka:</label>
+        <select name="marka" required>
+          <option value="">Seçiniz</option>
+          <option value="Apple">Apple</option>
+          <option value="Samsung">Samsung</option>
+          <option value="Xiaomi">Xiaomi</option>
+          <option value="Huawei">Huawei</option>
+          <option value="Oppo">Oppo</option>
+          <option value="Realme">Realme</option>
+          <option value="Înfinix">İnfinix</option>
+          <option value="Tecno">Tecno</option>
+        </select>
+      </div>
+      <div class="col">
+        <label>Model:</label>
+        <input type="text" name="model" required>
+      </div>
+    </div>
+
+    <label>IMEI:</label>
+    <input type="text" name="imei" required maxlength="15"
+           pattern="\d{15}" title="IMEI 15 haneli rakam olmalı"
+           inputmode="numeric"
+           oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
+
+    <div class="row">
+      <div class="col">
+        <label>İşlem:</label>
+        <select name="islem" required>
+          <option value="">Seçiniz</option>
+          <option value="Alındı">Alındı</option>
+          <option value="Satıldı">Satıldı</option>
+        </select>
+      </div>
+      <div class="col">
+        <label>Fiyat:</label>
+        <div class="input-group">
+          <input type="tel" id="fiyat" name="fiyat" inputmode="numeric" placeholder="Örn: 5.000" required>
+          <span class="suffix">TL</span>
+        </div>
+      </div>
+    </div>
+
+    <label>Tarih:</label>
+    <input type="date" name="tarih" id="tarih" required>
+
+    <label>Not:</label>
+    <textarea name="not"></textarea>
+
+    <button type="submit">Gönder</button>
+    <div id="message"></div>
+  </form>
+
+  <script>
+document.querySelector("form").addEventListener("submit", function(e) {
+  const inputs = this.querySelectorAll("input, textarea");
+  inputs.forEach(inp => {
+    inp.value = inp.value.toUpperCase();
+  });
+});
+
+    
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzb4SWk4Ihk8rMLIyNn6KhyNZU1bf0RCQJc84ML6FVqm3lA9XQgFp0Yg9R0Zgs6kzfLnQ/exec"; // kendi URL'ini koy
+    const form = document.getElementById("myForm");
+    const message = document.getElementById("message");
+    const tarihInput = document.getElementById("tarih");
+    const fiyatInput = document.getElementById("fiyat");
+
+    // Sayfa açıldığında tarih bugüne ayarlansın
+    document.addEventListener("DOMContentLoaded", () => {
+      tarihInput.value = new Date().toISOString().split("T")[0];
+    });
+
+    // Fiyat alanında binlik nokta formatlama (kuruş yok)
+    fiyatInput.addEventListener("input", () => {
+      const digits = fiyatInput.value.replace(/\D/g, "");
+      if (!digits) { fiyatInput.value = ""; return; }
+      const n = Number(digits);
+      fiyatInput.value = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n);
+    });
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+
+      // Tarih boşsa bugüne set et (garanti)
+      if (!tarihInput.value) {
+        tarihInput.value = new Date().toISOString().split("T")[0];
+      }
+
+      const formData = new FormData(form);
+
+      // Fiyatı "5.000 TL" formatında gönder
+      const raw = formData.get("fiyat") || "";
+      const digits = raw.replace(/\D/g, "");
+      const n = digits ? Number(digits) : 0;
+      const formatted = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n) + " TL";
+      formData.set("fiyat", formatted);
+
+      fetch(scriptURL, { method: "POST", body: formData })
+        .then(response => {
+          message.textContent = "✅ Kayıt başarılı!";
+          message.style.color = "green";
+          form.reset();
+          // Resetten sonra tarihi yine bugüne ayarla (garanti)
+          tarihInput.value = new Date().toISOString().split("T")[0];
+        })
+        .catch(error => {
+          message.textContent = "❌ Hata oluştu!";
+          message.style.color = "red";
+          console.error("Error!", error.message);
+        });
+    });
+
+    // Ek garanti: kullanıcı tarihi silerse blur anında tekrar bugüne set edelim
+    tarihInput.addEventListener("blur", () => {
+      if (!tarihInput.value) {
+        tarihInput.value = new Date().toISOString().split("T")[0];
+      }
+    });
+  </script>
+</body>
+</html>
