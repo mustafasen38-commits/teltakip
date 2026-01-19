@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kayıt Raporu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Global Ayarlar */
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 15px;
+      background: #f0f2f5;
+      color: #333;
+    }
+
+    /* --- Üst Menü --- */
+    .menu {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      background: #007acc;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .menu a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: 0.3s;
+    }
+
+    .menu a:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffeb3b;
+    }
+
+    h2 {
+      text-align: center;
+      color: #007acc;
+      margin-bottom: 10px;
+    }
+
+    /* --- Özet ve Arama --- */
+    #summary {
+      text-align: center;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border-left: 5px solid #007acc;
+    }
+
+    .limit-info {
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 15px;
+    }
+
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto 20px auto;
+      padding: 0 10px;
+    }
+
+    input#searchInput {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #ddd;
+      border-radius: 25px; /* Daha modern yuvarlak görünüm */
+      font-size: 16px;
+      outline: none;
+      transition: 0.3s;
+      text-transform: uppercase;
+    }
+
+    input#searchInput:focus {
+      border-color: #007acc;
+      box-shadow: 0 0 8px rgba(0,122,204,0.2);
+    }
+
+    /* --- Tablo Tasarımı (Masaüstü) --- */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      padding: 14px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+      text-transform: uppercase;
+    }
+
+    th {
+      background: #007acc;
+      color: white;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+
+    .fiyat { text-align: right; font-weight: bold; color: #2c3e50; }
+
+    /* Silme Butonu */
+    .delete-btn {
+      background: #ff4757;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .delete-btn:hover { background: #ff6b81; }
+
+    .highlight { background-color: #fff176; color: #000; padding: 2px; }
+
+    /* --- MOBIL UYUM (Kart Görünümü) --- */
+    @media (max-width: 850px) {
+      table, thead, tbody, th, td, tr { display: block; }
+      
+      thead tr { display: none; } /* Başlıkları gizle */
+
+      tr {
+        margin-bottom: 15px;
+        border: none;
+        border-radius: 12px;
+        background: #fff;
+        padding: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f9f9f9;
+        padding: 10px 5px;
+        font-size: 15px;
+        text-align: right;
+      }
+
+      td:last-child { border-bottom: none; }
+
+      /* Sütun isimlerini hücrenin soluna ekle */
+      td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: #007acc;
+        font-size: 12px;
+        text-align: left;
+        flex: 1;
+      }
+
+      .fiyat { color: #2ecc71; } /* Mobilde fiyatı vurgula */
+      
+      .delete-btn {
+        width: 100%; /* Mobilde sil butonu tam genişlik */
+        padding: 12px;
+        margin-top: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="menu">
+    <a href="forum.html">📝 Kayıt Giriş</a>
+    <a href="rapor.html" style="border-bottom: 2px solid #ffeb3b;">📊 Rapor</a>
+  </nav>
+
+  <h2>Kayıt Raporu</h2>
+
+  <div id="summary">Veriler Yükleniyor...</div>
+  <div class="limit-info" id="limitLabel">Son 100 kayıt gösteriliyor.</div>
+
+  <div class="search-container">
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="İSİM, IMEI VEYA TARİH ARA...">
+  </div>
+
+  <table id="raporTable">
+    <thead>
+      <tr>
+        <th>AD SOYAD</th>
+        <th>MARKA</th>
+        <th>MODEL</th>
+        <th>IMEI</th>
+        <th>İŞLEM</th>
+        <th class="fiyat">FİYAT</th>
+        <th>TARİH</th>
+        <th>NOT</th>
+        <th>TEL</th> <th>TC</th> <th>AKSİYON</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzb4SWk4Ihk8rMLIyNn6KhyNZU1bf0RCQJc84ML6FVqm3lA9XQgFp0Yg9R0Zgs6kzfLnQ/exec"; 
+    let globalData = [];
+    const ROW_LIMIT = 100;
+
+    async function loadReport() {
+      try {
+        const res = await fetch(WEBAPP_URL);
+        globalData = await res.json();
+        const initialShow = globalData.slice().reverse().slice(0, ROW_LIMIT);
+        renderTable(initialShow);
+        updateSummary(globalData);
+      } catch (err) {
+        console.error("Hata:", err);
+        document.getElementById("summary").textContent = "Bağlantı Hatası!";
+      }
+    }
+
+    function formatTarih(val) {
+      if (!val) return "";
+      let d = new Date(val);
+      if (isNaN(d.getTime())) return String(val).toUpperCase(); 
+      return d.toLocaleDateString("tr-TR", { day:"2-digit", month:"2-digit", year:"numeric" });
+    }
+
+    function renderTable(data, query = "") {
+      const tbody = document.querySelector("#raporTable tbody");
+      tbody.innerHTML = "";
+      
+      const columns = ["AD SOYAD", "MARKA", "MODEL", "IMEI", "İŞLEM", "FİYAT", "TARİH", "NOT", "TEL", "TC"];
+      const fragment = document.createDocumentFragment();
+
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        
+        columns.forEach(col => {
+          let cellVal = row[col] ? String(row[col]) : "";
+          if (col === "TARİH") cellVal = formatTarih(cellVal);
+
+          const displayVal = cellVal.toUpperCase();
+          let finalHTML = displayVal;
+
+          if (query) {
+            const regex = new RegExp(`(${escapeRegExp(query)})`, "gi");
+            finalHTML = displayVal.replace(regex, `<span class="highlight">$1</span>`);
+          }
+
+          const td = document.createElement("td");
+          td.className = col === "FİYAT" ? "fiyat" : "";
+          td.setAttribute("data-label", col);
+          td.innerHTML = finalHTML;
+          tr.appendChild(td);
+        });
+
+        // Sil Butonu
+        const tdSil = document.createElement("td");
+        tdSil.setAttribute("data-label", "AKSİYON");
+        const imei = String(row["IMEI"] || "");
+        tdSil.innerHTML = `<button class="delete-btn" onclick="handleDelete(this, '${encodeURIComponent(imei)}')">SİL</button>`;
+        tr.appendChild(tdSil);
+        
+        fragment.appendChild(tr);
+      });
+      
+      tbody.appendChild(fragment);
+    }
+
+    function filterTable() {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const limitLabel = document.getElementById("limitLabel");
+
+      if (query === "") {
+        const initialShow = globalData.slice().reverse().slice(0, ROW_LIMIT);
+        renderTable(initialShow);
+        limitLabel.textContent = `Son ${ROW_LIMIT} kayıt gösteriliyor.`;
+      } else {
+        const filtered = globalData.slice().reverse().filter(row => {
+          const searchableText = [
+            String(row["AD SOYAD"] || ""),
+            String(row["MARKA"] || ""),
+            String(row["MODEL"] || ""),
+            String(row["IMEI"] || ""),
+            String(row["İŞLEM"] || ""),
+            String(row["TEL"] || ""), // ARAMAYA EKLENDİ
+            String(row["TC"] || ""),  // ARAMAYA EKLENDİ
+            formatTarih(row["TARİH"]),
+            String(row["NOT"] || "")
+          ].join(" ").toLowerCase();
+          return searchableText.includes(query);
+        });
+        renderTable(filtered, query);
+        limitLabel.textContent = `${filtered.length} sonuç bulundu.`;
+      }
+      updateSummary(globalData);
+    }
+
+    async function handleDelete(btn, encodedImei) {
+      if(!confirm("Bu kaydı silmek istediğinize emin misiniz?")) return;
+      
+      const imei = decodeURIComponent(encodedImei);
+      btn.innerText = "SİLİNİYOR...";
+      btn.disabled = true;
+
+      try {
+        await fetch(WEBAPP_URL, {
+          method: "POST",
+          mode: "no-cors", 
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "delete", imei: imei })
+        });
+
+        globalData = globalData.filter(r => String(r["IMEI"]) !== imei);
+        filterTable();
+      } catch (err) {
+        alert("Hata oluştu!");
+        btn.innerText = "SİL";
+        btn.disabled = false;
+      }
+    }
+
+    function updateSummary(data) {
+      const toplam = data.length;
+      const alinan = data.filter(r => String(r["İŞLEM"] || "").toLowerCase().includes("al")).length;
+      const satilan = data.filter(r => String(r["İŞLEM"] || "").toLowerCase().includes("sat")).length;
+      document.getElementById("summary").textContent = `TOPLAM: ${toplam} | ALINAN: ${alinan} | SATILAN: ${satilan}`;
+    }
+
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    loadReport();
+  </script>
+</body>
+</html>

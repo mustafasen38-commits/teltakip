@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kayıt Formu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Mevcut CSS ayarların aynen kalıyor... */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 15px; background: #f5f7fa; color: #333; }
+    input, textarea, table td { text-transform: uppercase; }
+    .menu { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; background: #007acc; padding: 12px; border-radius: 12px; }
+    .menu a { color: white; text-decoration: none; font-weight: bold; font-size: 16px; padding: 5px 10px; }
+    form { max-width: 500px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    label { font-weight: 600; margin-top: 15px; display: block; font-size: 14px; }
+    input, select, textarea, button { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #e1e5eb; border-radius: 8px; font-size: 16px; background-color: #f9fbff; }
+    input:focus, select:focus, textarea:focus { border-color: #007acc; outline: none; background-color: #fff; box-shadow: 0 0 0 3px rgba(0,122,204,0.1); }
+    .row { display: flex; gap: 15px; }
+    .col { flex: 1; }
+    .input-group { position: relative; }
+    .input-group .suffix { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #888; pointer-events: none; }
+    button { margin-top: 20px; background: #007acc; color: white; border: none; font-size: 18px; cursor: pointer; padding: 15px; }
+    button:hover { background: #005f9e; }
+    #message { margin-top: 15px; font-weight: bold; text-align: center; }
+    @media (max-width: 480px) { .row { flex-direction: column; gap: 0; } }
+  </style>
+</head>
+<body>
+<div id="loginOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+  <h2 style="margin-bottom:20px; font-family:sans-serif;">Personel Girişi</h2>
+  <input type="password" id="pincode" placeholder="Şifreyi Giriniz" style="padding:15px; font-size:20px; border:2px solid #ccc; border-radius:10px; text-align:center; margin-bottom:10px;">
+  <button id="loginBtn" onclick="checkPin()" style="padding:10px 30px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">GİRİŞ YAP</button>
+  <p id="errorMsg" style="color:red; margin-top:10px; display:none;">Hatalı Şifre!</p>
+  <p id="lockMsg" style="color:orange; margin-top:10px; display:none; font-weight:bold;">Çok fazla hatalı deneme! <span id="timer">30</span> sn bekleyin.</p>
+</div>
+  <nav class="menu">
+    <a href="forum.html">📝 Kayıt Giriş</a>
+    <a href="rapor.html">📊 Rapor</a>
+  </nav>
+
+  <form id="myForm">
+    <label>Ad Soyad:</label>
+    <input type="text" name="name" class="focusable" placeholder="AD SOYAD GİRİNİZ" required>
+
+    <div class="row">
+      <div class="col">
+        <label>Cep Telefonu (TEL):</label>
+        <input type="tel" name="cep_no" class="focusable" placeholder="05XX XXX XX XX" required>
+      </div>
+      <div class="col">
+        <label>TC Kimlik No (TC):</label>
+        <input type="number" name="tc_kimlik" class="focusable" placeholder="11 HANELİ" required oninput="if(this.value.length > 11) this.value = this.value.slice(0, 11);">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label>Marka:</label>
+       <input type="text" name="marka" list="markaListesi" class="focusable" placeholder="SEÇİN VEYA YAZIN" required>
+  
+  <datalist id="markaListesi">
+    <option value="APPLE">
+    <option value="SAMSUNG">
+    <option value="XIAOMI">
+    <option value="HUAWEI">
+    <option value="OPPO">
+    <option value="REALME">
+    <option value="INFINIX">
+    <option value="TECNO">
+    <option value="CASPER">
+    <option value="REEDER">
+  </datalist>
+      </div>
+      <div class="col">
+        <label>Model:</label>
+        <input type="text" name="model" class="focusable" placeholder="MODEL" required>
+      </div>
+    </div>
+
+    <label>IMEI:</label>
+    <input type="text" name="imei" class="focusable" required maxlength="15"
+           pattern="\d{15}" title="IMEI 15 haneli rakam olmalı"
+           inputmode="numeric"
+           oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
+
+    <div class="row">
+      <div class="col">
+        <label>İşlem:</label>
+        <select name="islem" class="focusable" required>
+          <option value="">Seçiniz</option>
+          <option value="Alındı">Alındı</option>
+          <option value="Satıldı">Satıldı</option>
+        </select>
+      </div>
+      <div class="col">
+        <label>Fiyat:</label>
+        <div class="input-group">
+          <input type="tel" id="fiyat" name="fiyat" class="focusable" inputmode="numeric" placeholder="Örn: 5.000" required>
+          <span class="suffix">TL</span>
+        </div>
+      </div>
+    </div>
+
+    <label>Tarih:</label>
+    <input type="date" name="tarih" id="tarih" class="focusable" required>
+
+    <label>Not:</label>
+    <textarea name="not" rows="3" class="focusable" placeholder="Eklemek istediğiniz notlar..."></textarea>
+
+    <button type="submit" id="submitBtn">KAYDI GÖNDER</button>
+    <div id="message"></div>
+  </form>
+
+  <script>
+let attemptCount = 0;
+let isLocked = false;
+
+function checkPin() {
+  if (isLocked) return; // Kilitliyse işlem yapma
+
+  const pin = document.getElementById("pincode").value;
+  const correctPin = "6369"; // Şifreniz
+  const loginBtn = document.getElementById("loginBtn");
+  const errorMsg = document.getElementById("errorMsg");
+  const lockMsg = document.getElementById("lockMsg");
+  const timerSpan = document.getElementById("timer");
+
+  if (pin === correctPin) {
+    document.getElementById("loginOverlay").style.display = "none";
+    attemptCount = 0; // Başarılı girişte sayacı sıfırla
+    startInactivityTimer(); // İnaktivite takibini başlat
+  } else {
+    attemptCount++;
+    errorMsg.style.display = "block";
+    document.getElementById("pincode").value = "";
+
+    // 3 Hatalı denemede kilitle
+    if (attemptCount >= 3) {
+      isLocked = true;
+      errorMsg.style.display = "none";
+      lockMsg.style.display = "block";
+      loginBtn.disabled = true;
+      loginBtn.style.background = "#ccc";
+
+      let timeLeft = 30; // 30 saniye ceza
+      const countdown = setInterval(() => {
+        timeLeft--;
+        timerSpan.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          isLocked = false;
+          attemptCount = 0;
+          lockMsg.style.display = "none";
+          loginBtn.disabled = false;
+          loginBtn.style.background = "#007bff";
+        }
+      }, 1000);
+    }
+  }
+}
+
+// EKSTRA: 5 Dakika işlem yapılmazsa ekranı kilitle
+let inactivityTimeout;
+function startInactivityTimer() {
+  clearTimeout(inactivityTimeout);
+  inactivityTimeout = setTimeout(() => {
+    document.getElementById("loginOverlay").style.display = "flex";
+    document.getElementById("pincode").value = "";
+    alert("Uzun süre işlem yapılmadığı için güvenlik amacıyla kilitlendi.");
+  }, 3 * 60 * 1000); // 3 dakika (milisaniye cinsinden)
+}
+
+// Fare veya klavye hareketinde süreyi sıfırla
+document.onmousemove = startInactivityTimer;
+document.onkeypress = startInactivityTimer;
+
+// Enter tuşuyla da giriş yapabilmek için:
+document.getElementById("pincode").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    checkPin();
+  }
+});    
+// JS Kodların (Aynen Kalıyor, Sadece focusableInputs otomatik yeni alanları da kapsıyor)
+    const form = document.getElementById("myForm");
+    
+    // focusableInputs'u her seferinde güncel listeyi alacak şekilde güncelleyelim
+    const getFocusableInputs = () => Array.from(document.querySelectorAll(".focusable"));
+
+    form.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        if (e.target.tagName !== "TEXTAREA") {
+          e.preventDefault();
+          const inputs = getFocusableInputs();
+          const index = inputs.indexOf(e.target);
+          if (index > -1 && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          } else if (index === inputs.length - 1) {
+            form.requestSubmit();
+          }
+        }
+      }
+    });
+
+    form.addEventListener("submit", function(e) {
+      const inputs = this.querySelectorAll("input, textarea");
+      inputs.forEach(inp => {
+        if(inp.type !== 'date' && inp.type !== 'tel' && inp.type !== 'number') {
+          inp.value = inp.value.toUpperCase();
+        }
+      });
+    });
+
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzb4SWk4Ihk8rMLIyNn6KhyNZU1bf0RCQJc84ML6FVqm3lA9XQgFp0Yg9R0Zgs6kzfLnQ/exec";
+    const message = document.getElementById("message");
+    const tarihInput = document.getElementById("tarih");
+    const fiyatInput = document.getElementById("fiyat");
+
+    document.addEventListener("DOMContentLoaded", () => {
+      tarihInput.value = new Date().toISOString().split("T")[0];
+    });
+
+    fiyatInput.addEventListener("input", () => {
+      const digits = fiyatInput.value.replace(/\D/g, "");
+      if (!digits) { fiyatInput.value = ""; return; }
+      const n = Number(digits);
+      fiyatInput.value = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n);
+    });
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      message.textContent = "⏳ Gönderiliyor...";
+      message.style.color = "orange";
+
+      const formData = new FormData(form);
+      
+      // Fiyat formatlama
+      const raw = formData.get("fiyat") || "";
+      const digits = raw.replace(/\D/g, "");
+      const n = digits ? Number(digits) : 0;
+      const formatted = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n) + " TL";
+      formData.set("fiyat", formatted);
+
+      fetch(scriptURL, { method: "POST", body: formData })
+        .then(response => {
+          message.textContent = "✅ Kayıt başarılı!";
+          message.style.color = "green";
+          form.reset();
+          tarihInput.value = new Date().toISOString().split("T")[0];
+        })
+        .catch(error => {
+          message.textContent = "❌ Hata oluştu!";
+          message.style.color = "red";
+        });
+    });
+
+    tarihInput.addEventListener("blur", () => {
+      if (!tarihInput.value) {
+        tarihInput.value = new Date().toISOString().split("T")[0];
+      }
+    });
+  </script>
+</body>
+</html>
