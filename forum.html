@@ -26,13 +26,6 @@
   </style>
 </head>
 <body>
-<div id="loginOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-  <h2 style="margin-bottom:20px; font-family:sans-serif;">Personel Girişi</h2>
-  <input type="password" id="pincode" placeholder="Şifreyi Giriniz" style="padding:15px; font-size:20px; border:2px solid #ccc; border-radius:10px; text-align:center; margin-bottom:10px;">
-  <button id="loginBtn" onclick="checkPin()" style="padding:10px 30px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">GİRİŞ YAP</button>
-  <p id="errorMsg" style="color:red; margin-top:10px; display:none;">Hatalı Şifre!</p>
-  <p id="lockMsg" style="color:orange; margin-top:10px; display:none; font-weight:bold;">Çok fazla hatalı deneme! <span id="timer">30</span> sn bekleyin.</p>
-</div>
   <nav class="menu">
     <a href="forum.html">📝 Kayıt Giriş</a>
     <a href="rapor.html">📊 Rapor</a>
@@ -111,74 +104,7 @@
   </form>
 
   <script>
-let attemptCount = 0;
-let isLocked = false;
 
-function checkPin() {
-  if (isLocked) return; // Kilitliyse işlem yapma
-
-  const pin = document.getElementById("pincode").value;
-  const correctPin = "6369"; // Şifreniz
-  const loginBtn = document.getElementById("loginBtn");
-  const errorMsg = document.getElementById("errorMsg");
-  const lockMsg = document.getElementById("lockMsg");
-  const timerSpan = document.getElementById("timer");
-
-  if (pin === correctPin) {
-    document.getElementById("loginOverlay").style.display = "none";
-    attemptCount = 0; // Başarılı girişte sayacı sıfırla
-    startInactivityTimer(); // İnaktivite takibini başlat
-  } else {
-    attemptCount++;
-    errorMsg.style.display = "block";
-    document.getElementById("pincode").value = "";
-
-    // 3 Hatalı denemede kilitle
-    if (attemptCount >= 3) {
-      isLocked = true;
-      errorMsg.style.display = "none";
-      lockMsg.style.display = "block";
-      loginBtn.disabled = true;
-      loginBtn.style.background = "#ccc";
-
-      let timeLeft = 30; // 30 saniye ceza
-      const countdown = setInterval(() => {
-        timeLeft--;
-        timerSpan.textContent = timeLeft;
-        if (timeLeft <= 0) {
-          clearInterval(countdown);
-          isLocked = false;
-          attemptCount = 0;
-          lockMsg.style.display = "none";
-          loginBtn.disabled = false;
-          loginBtn.style.background = "#007bff";
-        }
-      }, 1000);
-    }
-  }
-}
-
-// EKSTRA: 5 Dakika işlem yapılmazsa ekranı kilitle
-let inactivityTimeout;
-function startInactivityTimer() {
-  clearTimeout(inactivityTimeout);
-  inactivityTimeout = setTimeout(() => {
-    document.getElementById("loginOverlay").style.display = "flex";
-    document.getElementById("pincode").value = "";
-    alert("Uzun süre işlem yapılmadığı için güvenlik amacıyla kilitlendi.");
-  }, 3 * 60 * 1000); // 3 dakika (milisaniye cinsinden)
-}
-
-// Fare veya klavye hareketinde süreyi sıfırla
-document.onmousemove = startInactivityTimer;
-document.onkeypress = startInactivityTimer;
-
-// Enter tuşuyla da giriş yapabilmek için:
-document.getElementById("pincode").addEventListener("keypress", function(e) {
-  if (e.key === "Enter") {
-    checkPin();
-  }
-});    
 // JS Kodların (Aynen Kalıyor, Sadece focusableInputs otomatik yeni alanları da kapsıyor)
     const form = document.getElementById("myForm");
     
@@ -261,3 +187,4 @@ document.getElementById("pincode").addEventListener("keypress", function(e) {
 </body>
 
 </html>
+
