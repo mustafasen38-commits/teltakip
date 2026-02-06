@@ -5,178 +5,52 @@
   <title>Kayıt Raporu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* Global Ayarlar */
     * { box-sizing: border-box; }
-    
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 15px;
-      background: #f0f2f5;
-      color: #333;
-    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 15px; background: #f0f2f5; color: #333; }
+    input, textarea, select { text-transform: uppercase; }
 
     /* --- Üst Menü --- */
-    .menu {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      background: #007acc;
-      padding: 12px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+    .menu { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; background: #007acc; padding: 12px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .menu a { color: white; text-decoration: none; font-weight: bold; font-size: 16px; padding: 6px 12px; border-radius: 6px; transition: 0.3s; }
+    .menu a:hover { background: rgba(255, 255, 255, 0.2); color: #ffeb3b; }
 
-    .menu a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 16px;
-      padding: 6px 12px;
-      border-radius: 6px;
-      transition: 0.3s;
-    }
+    h2 { text-align: center; color: #007acc; margin-bottom: 10px; }
+    #summary { text-align: center; background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 5px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #007acc; }
+    #limitInfo { text-align: center; font-size: 13px; color: #666; margin-bottom: 15px; font-style: italic; }
 
-    .menu a:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: #ffeb3b;
-    }
+    .search-container { max-width: 600px; margin: 0 auto 20px auto; }
+    input#searchInput { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 25px; font-size: 16px; outline: none; transition: 0.3s; }
 
-    h2 {
-      text-align: center;
-      color: #007acc;
-      margin-bottom: 10px;
-    }
+    /* --- Tablo Tasarımı --- */
+    table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
+    th { background: #007acc; color: white; letter-spacing: 0.5px; }
+    .fiyat-sutun { font-weight: bold; color: #2ecc71; text-align: right; }
+    mark { background-color: #fff176; color: #000; padding: 0 2px; border-radius: 3px; }
 
-    /* --- Özet ve Arama --- */
-    #summary {
-      text-align: center;
-      background: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      font-weight: bold;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      border-left: 5px solid #007acc;
-    }
+    /* --- DÜZENLEME MODAL (Forum Stili) --- */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); }
+    .modal-content { background: #fff; margin: 2% auto; padding: 0; border-radius: 15px; width: 95%; max-width: 550px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .modal-header { background: #007acc; color: white; padding: 15px 20px; font-size: 18px; font-weight: bold; display: flex; justify-content: space-between; }
+    .modal-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-height: 75vh; overflow-y: auto; }
+    .full-row { grid-column: span 2; }
+    .input-group { display: flex; flex-direction: column; position: relative; }
+    .input-group label { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 5px; }
+    .input-group input, .input-group select, .input-group textarea { padding: 10px; border: 1.5px solid #e1e5eb; border-radius: 8px; font-size: 15px; background: #f9fbff; }
+    .input-group input:focus { border-color: #007acc; outline: none; background: #fff; }
+    .suffix { position: absolute; right: 10px; top: 32px; font-weight: bold; color: #888; }
+    .modal-footer { background: #f9f9f9; padding: 15px 20px; display: flex; gap: 10px; border-top: 1px solid #eee; }
+    .save-btn { background: #2ecc71; color: white; border: none; padding: 12px; flex: 2; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+    .cancel-btn { background: #e0e0e0; color: #333; border: none; padding: 12px; flex: 1; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-    .limit-info {
-      text-align: center;
-      font-size: 12px;
-      color: #777;
-      margin-bottom: 15px;
-    }
-
-    .search-container {
-      max-width: 600px;
-      margin: 0 auto 20px auto;
-      padding: 0 10px;
-    }
-
-    input#searchInput {
-      width: 100%;
-      padding: 12px 15px;
-      border: 2px solid #ddd;
-      border-radius: 25px; /* Daha modern yuvarlak görünüm */
-      font-size: 16px;
-      outline: none;
-      transition: 0.3s;
-      text-transform: uppercase;
-    }
-
-    input#searchInput:focus {
-      border-color: #007acc;
-      box-shadow: 0 0 8px rgba(0,122,204,0.2);
-    }
-
-    /* --- Tablo Tasarımı (Masaüstü) --- */
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      background: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-
-    th, td {
-      padding: 14px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-      text-transform: uppercase;
-    }
-
-    th {
-      background: #007acc;
-      color: white;
-      font-size: 13px;
-      letter-spacing: 0.5px;
-    }
-
-    .fiyat { text-align: right; font-weight: bold; color: #2c3e50; }
-
-    /* Silme Butonu */
-    .delete-btn {
-      background: #ff4757;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: bold;
-      transition: 0.2s;
-    }
-
-    .delete-btn:hover { background: #ff6b81; }
-
-    .highlight { background-color: #fff176; color: #000; padding: 2px; }
-
-    /* --- MOBIL UYUM (Kart Görünümü) --- */
     @media (max-width: 850px) {
+      .modal-body { grid-template-columns: 1fr; }
+      .full-row { grid-column: span 1; }
       table, thead, tbody, th, td, tr { display: block; }
-      
-      thead tr { display: none; } /* Başlıkları gizle */
-
-      tr {
-        margin-bottom: 15px;
-        border: none;
-        border-radius: 12px;
-        background: #fff;
-        padding: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      }
-
-      td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #f9f9f9;
-        padding: 10px 5px;
-        font-size: 15px;
-        text-align: right;
-      }
-
-      td:last-child { border-bottom: none; }
-
-      /* Sütun isimlerini hücrenin soluna ekle */
-      td::before {
-        content: attr(data-label);
-        font-weight: 700;
-        color: #007acc;
-        font-size: 12px;
-        text-align: left;
-        flex: 1;
-      }
-
-      .fiyat { color: #2ecc71; } /* Mobilde fiyatı vurgula */
-      
-      .delete-btn {
-        width: 100%; /* Mobilde sil butonu tam genişlik */
-        padding: 12px;
-        margin-top: 5px;
-      }
+      thead tr { display: none; }
+      tr { margin-bottom: 15px; border-radius: 12px; background: #fff; padding: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+      td { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f9f9f9; padding: 10px 5px; text-align: right; }
+      td::before { content: attr(data-label); font-weight: 700; color: #007acc; font-size: 11px; text-align: left; flex: 1; }
     }
   </style>
 </head>
@@ -188,9 +62,8 @@
   </nav>
 
   <h2>Kayıt Raporu</h2>
-
-  <div id="summary">Veriler Yükleniyor...</div>
-  <div class="limit-info" id="limitLabel">Son 100 kayıt gösteriliyor.</div>
+  <div id="summary">Yükleniyor...</div>
+  <div id="limitInfo">...</div>
 
   <div class="search-container">
     <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="İSİM, IMEI VEYA TARİH ARA...">
@@ -199,149 +72,152 @@
   <table id="raporTable">
     <thead>
       <tr>
-        <th>AD SOYAD</th>
-        <th>MARKA</th>
-        <th>MODEL</th>
-        <th>IMEI</th>
-        <th>İŞLEM</th>
-        <th class="fiyat">FİYAT</th>
-        <th>TARİH</th>
-        <th>NOT</th>
-        <th>TEL</th> <th>TC</th> <th>AKSİYON</th>
+        <th>AD SOYAD</th><th>MARKA</th><th>MODEL</th><th>IMEI</th><th>İŞLEM</th><th>FİYAT</th><th>TARİH</th><th>NOT</th><th>TEL</th><th>TC</th><th>AKSİYON</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><span>⚙️ KAYIT DÜZENLE</span><span style="cursor:pointer" onclick="closeModal()">&times;</span></div>
+      <div class="modal-body">
+        <input type="hidden" id="oldImei">
+        <div class="input-group full-row"><label>AD SOYAD</label><input type="text" id="editAd"></div>
+        <div class="input-group"><label>MARKA</label><input type="text" id="editMarka" list="markaListesi">
+          <datalist id="markaListesi"><option value="APPLE"><option value="SAMSUNG"><option value="XIAOMI"><option value="HUAWEI"><option value="OPPO"><option value="REALME"><option value="INFINIX"><option value="TECNO"></datalist>
+        </div>
+        <div class="input-group"><label>MODEL</label><input type="text" id="editModel"></div>
+        <div class="input-group"><label>IMEI NUMARASI</label><input type="text" id="editImei" maxlength="15" oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)"></div>
+        <div class="input-group"><label>İŞLEM TÜRÜ</label><select id="editIslem"><option value="ALINDI">ALINDI</option><option value="SATILDI">SATILDI</option></select></div>
+        <div class="input-group"><label>FİYAT (TL)</label><input type="tel" id="editFiyat" placeholder="5.000"><span class="suffix">TL</span></div>
+        <div class="input-group"><label>CEP TELEFONU</label><input type="tel" id="editTel"></div>
+        <div class="input-group full-row"><label>TC KİMLİK NO</label><input type="number" id="editTc" oninput="if(this.value.length > 11) this.value = this.value.slice(0, 11);"></div>
+        <div class="input-group full-row"><label>NOTLAR</label><textarea id="editNot" rows="3"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="save-btn" onclick="submitEdit()">GÜNCELLE</button>
+        <button class="cancel-btn" onclick="closeModal()">İPTAL</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzb4SWk4Ihk8rMLIyNn6KhyNZU1bf0RCQJc84ML6FVqm3lA9XQgFp0Yg9R0Zgs6kzfLnQ/exec"; 
     let globalData = [];
-    const ROW_LIMIT = 100;
+    const MAX_VISIBLE = 100;
+
+    // Fiyat Formatlayıcı
+    document.getElementById("editFiyat").addEventListener("input", function() {
+      let d = this.value.replace(/\D/g, "");
+      this.value = d ? new Intl.NumberFormat("tr-TR").format(Number(d)) : "";
+    });
 
     async function loadReport() {
       try {
         const res = await fetch(WEBAPP_URL);
         globalData = await res.json();
-        const initialShow = globalData.slice().reverse().slice(0, ROW_LIMIT);
-        renderTable(initialShow);
-        updateSummary(globalData);
-      } catch (err) {
-        console.error("Hata:", err);
-        document.getElementById("summary").textContent = "Bağlantı Hatası!";
-      }
-    }
-
-    function formatTarih(val) {
-      if (!val) return "";
-      let d = new Date(val);
-      if (isNaN(d.getTime())) return String(val).toUpperCase(); 
-      return d.toLocaleDateString("tr-TR", { day:"2-digit", month:"2-digit", year:"numeric" });
+        filterTable();
+      } catch (err) { document.getElementById("summary").textContent = "Hata!"; }
     }
 
     function renderTable(data, query = "") {
       const tbody = document.querySelector("#raporTable tbody");
       tbody.innerHTML = "";
+      const cols = ["AD SOYAD", "MARKA", "MODEL", "IMEI", "İŞLEM", "FİYAT", "TARİH", "NOT", "TEL", "TC"];
       
-      const columns = ["AD SOYAD", "MARKA", "MODEL", "IMEI", "İŞLEM", "FİYAT", "TARİH", "NOT", "TEL", "TC"];
-      const fragment = document.createDocumentFragment();
-
       data.forEach(row => {
         const tr = document.createElement("tr");
-        
-        columns.forEach(col => {
-          let cellVal = row[col] ? String(row[col]) : "";
-          if (col === "TARİH") cellVal = formatTarih(cellVal);
-
-          const displayVal = cellVal.toUpperCase();
-          let finalHTML = displayVal;
+        cols.forEach(col => {
+          let val = row[col] || row[col.toLowerCase()] || "-";
+          if (col === "TARİH" && val !== "-") val = new Date(val).toLocaleDateString("tr-TR");
+          
+          const td = document.createElement("td");
+          td.setAttribute("data-label", col);
+          let txt = val.toString().toUpperCase();
 
           if (query) {
-            const regex = new RegExp(`(${escapeRegExp(query)})`, "gi");
-            finalHTML = displayVal.replace(regex, `<span class="highlight">$1</span>`);
-          }
+            const regex = new RegExp(`(${query.toUpperCase()})`, "g");
+            td.innerHTML = txt.replace(regex, "<mark>$1</mark>");
+          } else { td.innerText = txt; }
 
-          const td = document.createElement("td");
-          td.className = col === "FİYAT" ? "fiyat" : "";
-          td.setAttribute("data-label", col);
-          td.innerHTML = finalHTML;
+          if (col === "FİYAT") {
+            td.className = "fiyat-sutun";
+            if (!td.innerHTML.includes("TL")) td.innerHTML += " TL";
+          }
           tr.appendChild(td);
         });
 
-        // Sil Butonu
-        const tdSil = document.createElement("td");
-        tdSil.setAttribute("data-label", "AKSİYON");
-        const imei = String(row["IMEI"] || "");
-        tdSil.innerHTML = `<button class="delete-btn" onclick="handleDelete(this, '${encodeURIComponent(imei)}')">SİL</button>`;
-        tr.appendChild(tdSil);
-        
-        fragment.appendChild(tr);
+        const rowDataStr = encodeURIComponent(JSON.stringify(row));
+        const tdAks = document.createElement("td");
+        tdAks.setAttribute("data-label", "AKSİYON");
+        tdAks.innerHTML = `<div style="display:flex;gap:5px"><button onclick='openModal("${rowDataStr}")' style="background:#ffa502;color:white;border:none;padding:8px;border-radius:5px;cursor:pointer">DÜZENLE</button><button onclick="handleDelete(this, '${encodeURIComponent(row["IMEI"] || "")}')" style="background:#ff4757;color:white;border:none;padding:8px;border-radius:5px;cursor:pointer">SİL</button></div>`;
+        tr.appendChild(tdAks);
+        tbody.appendChild(tr);
       });
-      
-      tbody.appendChild(fragment);
     }
 
     function filterTable() {
-      const query = document.getElementById("searchInput").value.trim().toLowerCase();
-      const limitLabel = document.getElementById("limitLabel");
-
-      if (query === "") {
-        const initialShow = globalData.slice().reverse().slice(0, ROW_LIMIT);
-        renderTable(initialShow);
-        limitLabel.textContent = `Son ${ROW_LIMIT} kayıt gösteriliyor.`;
-      } else {
-        const filtered = globalData.slice().reverse().filter(row => {
-          const searchableText = [
-            String(row["AD SOYAD"] || ""),
-            String(row["MARKA"] || ""),
-            String(row["MODEL"] || ""),
-            String(row["IMEI"] || ""),
-            String(row["İŞLEM"] || ""),
-            String(row["TEL"] || ""), // ARAMAYA EKLENDİ
-            String(row["TC"] || ""),  // ARAMAYA EKLENDİ
-            formatTarih(row["TARİH"]),
-            String(row["NOT"] || "")
-          ].join(" ").toLowerCase();
-          return searchableText.includes(query);
-        });
-        renderTable(filtered, query);
-        limitLabel.textContent = `${filtered.length} sonuç bulundu.`;
-      }
+      const query = document.getElementById("searchInput").value.trim().toUpperCase();
+      let allData = globalData.slice().reverse();
+      let filtered = query === "" ? allData.slice(0, MAX_VISIBLE) : allData.filter(r => Object.values(r).some(v => String(v).toUpperCase().includes(query)));
+      
+      renderTable(filtered, query);
+      document.getElementById("limitInfo").innerHTML = query === "" ? `Toplam ${globalData.length} kayıt. Son 100 gösteriliyor.` : `<b>${filtered.length}</b> sonuç bulundu.`;
       updateSummary(globalData);
     }
 
-    async function handleDelete(btn, encodedImei) {
-      if(!confirm("Bu kaydı silmek istediğinize emin misiniz?")) return;
-      
-      const imei = decodeURIComponent(encodedImei);
-      btn.innerText = "SİLİNİYOR...";
-      btn.disabled = true;
-
-      try {
-        await fetch(WEBAPP_URL, {
-          method: "POST",
-          mode: "no-cors", 
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "delete", imei: imei })
-        });
-
-        globalData = globalData.filter(r => String(r["IMEI"]) !== imei);
-        filterTable();
-      } catch (err) {
-        alert("Hata oluştu!");
-        btn.innerText = "SİL";
-        btn.disabled = false;
-      }
-    }
-
     function updateSummary(data) {
-      const toplam = data.length;
-      const alinan = data.filter(r => String(r["İŞLEM"] || "").toLowerCase().includes("al")).length;
-      const satilan = data.filter(r => String(r["İŞLEM"] || "").toLowerCase().includes("sat")).length;
-      document.getElementById("summary").textContent = `TOPLAM: ${toplam} | ALINAN: ${alinan} | SATILAN: ${satilan}`;
+      let a = 0, s = 0;
+      data.forEach(r => {
+        let i = (r["İŞLEM"] || r["islem"] || "").toString().toUpperCase();
+        if (i.includes("AL")) a++; else if (i.includes("SAT")) s++;
+      });
+      document.getElementById("summary").textContent = `TOPLAM: ${data.length} | ALINAN: ${a} | SATILAN: ${s}`;
     }
 
-    function escapeRegExp(string) {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    function openModal(enc) {
+      const r = JSON.parse(decodeURIComponent(enc));
+      document.getElementById("oldImei").value = r["IMEI"] || "";
+      document.getElementById("editAd").value = r["AD SOYAD"] || r["name"] || "";
+      document.getElementById("editMarka").value = r["MARKA"] || "";
+      document.getElementById("editModel").value = r["MODEL"] || "";
+      document.getElementById("editImei").value = r["IMEI"] || "";
+      document.getElementById("editIslem").value = (r["İŞLEM"] || r["islem"] || "ALINDI").toUpperCase().includes("SAT") ? "SATILDI" : "ALINDI";
+      document.getElementById("editFiyat").value = (r["FİYAT"] || r["fiyat"] || "").toString().replace(/[^\d]/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      document.getElementById("editNot").value = r["NOT"] || "";
+      document.getElementById("editTel").value = r["TEL"] || r["cep_no"] || "";
+      document.getElementById("editTc").value = r["TC"] || r["tc_kimlik"] || "";
+      document.getElementById("editModal").style.display = "block";
+    }
+
+    function closeModal() { document.getElementById("editModal").style.display = "none"; }
+
+    async function submitEdit() {
+      const b = document.querySelector(".save-btn");
+      b.innerText = "İŞLENİYOR..."; b.disabled = true;
+      const p = {
+        action: "edit",
+        oldImei: document.getElementById("oldImei").value,
+        adSoyad: document.getElementById("editAd").value,
+        marka: document.getElementById("editMarka").value,
+        model: document.getElementById("editModel").value,
+        imei: document.getElementById("editImei").value,
+        islem: document.getElementById("editIslem").value,
+        fiyat: document.getElementById("editFiyat").value + " TL",
+        not: document.getElementById("editNot").value,
+        tel: document.getElementById("editTel").value,
+        tc: document.getElementById("editTc").value
+      };
+      await fetch(WEBAPP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(p) });
+      location.reload(); 
+    }
+
+    async function handleDelete(btn, imei) {
+      if(confirm("Silinsin mi?")) {
+        await fetch(WEBAPP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "delete", imei: decodeURIComponent(imei) }) });
+        location.reload();
+      }
     }
 
     loadReport();
