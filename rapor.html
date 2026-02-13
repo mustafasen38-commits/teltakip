@@ -18,8 +18,11 @@
     #summary { text-align: center; background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 5px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #007acc; }
     #limitInfo { text-align: center; font-size: 13px; color: #666; margin-bottom: 15px; font-style: italic; }
 
-    .search-container { max-width: 600px; margin: 0 auto 20px auto; }
-    input#searchInput { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 25px; font-size: 16px; outline: none; transition: 0.3s; }
+    /* Arama ve Yazdır Konteynırı */
+    .search-container { max-width: 600px; margin: 0 auto 20px auto; display: flex; gap: 10px; }
+    input#searchInput { flex: 1; padding: 12px 15px; border: 2px solid #ddd; border-radius: 25px; font-size: 16px; outline: none; transition: 0.3s; }
+    .print-btn { background: #27ae60; color: white; border: none; padding: 0 20px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 14px; }
+    .print-btn:hover { background: #219150; }
 
     /* --- Tablo Tasarımı --- */
     table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
@@ -28,7 +31,7 @@
     .fiyat-sutun { font-weight: bold; color: #2ecc71; text-align: right; }
     mark { background-color: #fff176; color: #000; padding: 0 2px; border-radius: 3px; }
 
-    /* --- DÜZENLEME MODAL (Forum Stili) --- */
+    /* --- MODAL STİLLERİ --- */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); }
     .modal-content { background: #fff; margin: 2% auto; padding: 0; border-radius: 15px; width: 95%; max-width: 550px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
     .modal-header { background: #007acc; color: white; padding: 15px 20px; font-size: 18px; font-weight: bold; display: flex; justify-content: space-between; }
@@ -37,10 +40,8 @@
     .input-group { display: flex; flex-direction: column; position: relative; }
     .input-group label { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 5px; }
     .input-group input, .input-group select, .input-group textarea { padding: 10px; border: 1.5px solid #e1e5eb; border-radius: 8px; font-size: 15px; background: #f9fbff; }
-    .input-group input:focus { border-color: #007acc; outline: none; background: #fff; }
-    .suffix { position: absolute; right: 10px; top: 32px; font-weight: bold; color: #888; }
     .modal-footer { background: #f9f9f9; padding: 15px 20px; display: flex; gap: 10px; border-top: 1px solid #eee; }
-    .save-btn { background: #2ecc71; color: white; border: none; padding: 12px; flex: 2; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+    .save-btn { background: #2ecc71; color: white; border: none; padding: 12px; flex: 2; border-radius: 8px; cursor: pointer; font-weight: bold; }
     .cancel-btn { background: #e0e0e0; color: #333; border: none; padding: 12px; flex: 1; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
     @media (max-width: 850px) {
@@ -51,6 +52,17 @@
       tr { margin-bottom: 15px; border-radius: 12px; background: #fff; padding: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
       td { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f9f9f9; padding: 10px 5px; text-align: right; }
       td::before { content: attr(data-label); font-weight: 700; color: #007acc; font-size: 11px; text-align: left; flex: 1; }
+    }
+
+    /* Yazdırma Esnasında Menüyü ve Butonları Gizle */
+    @media print {
+      .menu, .search-container, #limitInfo, .modal, .cancel-btn, .save-btn, th:last-child, td:last-child {
+        display: none !important;
+      }
+      body { background: white; padding: 0; }
+      table { box-shadow: none; border: 1px solid #000; }
+      th { background: #eee !important; color: black !important; border: 1px solid #000; }
+      td { border: 1px solid #000; }
     }
   </style>
 </head>
@@ -67,6 +79,7 @@
 
   <div class="search-container">
     <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="İSİM, IMEI VEYA TARİH ARA...">
+    <button class="print-btn" onclick="yazdirTablo()">🖨️ YAZDIR</button>
   </div>
 
   <table id="raporTable">
@@ -88,11 +101,11 @@
           <datalist id="markaListesi"><option value="APPLE"><option value="SAMSUNG"><option value="XIAOMI"><option value="HUAWEI"><option value="OPPO"><option value="REALME"><option value="INFINIX"><option value="TECNO"></datalist>
         </div>
         <div class="input-group"><label>MODEL</label><input type="text" id="editModel"></div>
-        <div class="input-group"><label>IMEI NUMARASI</label><input type="text" id="editImei" maxlength="15" oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)"></div>
+        <div class="input-group"><label>IMEI NUMARASI</label><input type="text" id="editImei" maxlength="15"></div>
         <div class="input-group"><label>İŞLEM TÜRÜ</label><select id="editIslem"><option value="ALINDI">ALINDI</option><option value="SATILDI">SATILDI</option></select></div>
-        <div class="input-group"><label>FİYAT (TL)</label><input type="tel" id="editFiyat" placeholder="5.000"><span class="suffix">TL</span></div>
+        <div class="input-group"><label>FİYAT (TL)</label><input type="tel" id="editFiyat" placeholder="5.000"></div>
         <div class="input-group"><label>CEP TELEFONU</label><input type="tel" id="editTel"></div>
-        <div class="input-group full-row"><label>TC KİMLİK NO</label><input type="number" id="editTc" oninput="if(this.value.length > 11) this.value = this.value.slice(0, 11);"></div>
+        <div class="input-group full-row"><label>TC KİMLİK NO</label><input type="number" id="editTc"></div>
         <div class="input-group full-row"><label>NOTLAR</label><textarea id="editNot" rows="3"></textarea></div>
       </div>
       <div class="modal-footer">
@@ -158,13 +171,45 @@
     }
 
     function filterTable() {
-      const query = document.getElementById("searchInput").value.trim().toUpperCase();
+      const input = document.getElementById("searchInput");
+      const trMap = { 'İ': 'i', 'I': 'ı', 'Ş': 's', 'Ğ': 'g', 'Ü': 'u', 'Ö': 'o', 'Ç': 'c' };
+      const normalize = (str) => str.toString().toUpperCase().replace(/[İIŞĞÜÖÇ]/g, m => trMap[m] || m).toLowerCase();
+
+      const query = normalize(input.value.trim());
       let allData = globalData.slice().reverse();
-      let filtered = query === "" ? allData.slice(0, MAX_VISIBLE) : allData.filter(r => Object.values(r).some(v => String(v).toUpperCase().includes(query)));
-      
-      renderTable(filtered, query);
+
+      let filtered = allData.filter(row => {
+        if (query === "") return true;
+        return Object.keys(row).some(key => {
+          let val = row[key] ? row[key].toString() : "";
+          if (key.toUpperCase() === "TARİH" && val !== "-") val = new Date(val).toLocaleDateString("tr-TR");
+          return normalize(val).includes(query);
+        });
+      });
+
+      let displayData = query === "" ? filtered.slice(0, MAX_VISIBLE) : filtered;
+      renderTable(displayData, input.value.trim());
       document.getElementById("limitInfo").innerHTML = query === "" ? `Toplam ${globalData.length} kayıt. Son 100 gösteriliyor.` : `<b>${filtered.length}</b> sonuç bulundu.`;
       updateSummary(globalData);
+    }
+
+    function yazdirTablo() {
+      const table = document.getElementById("raporTable").cloneNode(true);
+      // Yazdırma sayfasında Aksiyon (Son) sütununu sil
+      const rows = table.querySelectorAll("tr");
+      rows.forEach(row => {
+        if (row.lastElementChild) row.removeChild(row.lastElementChild);
+      });
+
+      const win = window.open("", "", "height=700,width=900");
+      win.document.write("<html><head><title>Yazdır</title>");
+      win.document.write("<style>table{border-collapse:collapse;width:100%;font-family:sans-serif;} th,td{border:1px solid #ddd;padding:8px;font-size:11px;text-align:left;} th{background:#eee;}</style>");
+      win.document.write("</head><body>");
+      win.document.write("<h2 style='text-align:center'>KAYIT RAPORU ÇIKTISI</h2>");
+      win.document.write(table.outerHTML);
+      win.document.write("</body></html>");
+      win.document.close();
+      win.print();
     }
 
     function updateSummary(data) {
