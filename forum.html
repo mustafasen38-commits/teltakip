@@ -5,7 +5,6 @@
   <title>Kayıt Formu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* Mevcut CSS ayarların aynen kalıyor... */
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 15px; background: #f5f7fa; color: #333; }
     input, textarea, table td { text-transform: uppercase; }
@@ -26,6 +25,7 @@
   </style>
 </head>
 <body>
+
   <nav class="menu">
     <a href="forum.html">📝 Kayıt Giriş</a>
     <a href="rapor.html">📊 Rapor</a>
@@ -38,30 +38,35 @@
     <div class="row">
       <div class="col">
         <label>Cep Telefonu (TEL):</label>
-        <input type="tel" name="cep_no" class="focusable" placeholder="05XX XXX XX XX" required>
+        <input type="tel" name="cep_no" class="focusable" placeholder="05XX XXX XX XX">
       </div>
       <div class="col">
         <label>TC Kimlik No (TC):</label>
-        <input type="number" name="tc_kimlik" class="focusable" placeholder="11 HANELİ" required oninput="if(this.value.length > 11) this.value = this.value.slice(0, 11);">
+        <input type="number" name="tc_kimlik" class="focusable" placeholder="11 HANELİ" oninput="if(this.value.length > 11) this.value = this.value.slice(0, 11);">
       </div>
     </div>
+
     <div class="row">
       <div class="col">
         <label>Marka:</label>
-       <input type="text" name="marka" list="markaListesi" class="focusable" placeholder="SEÇİN VEYA YAZIN" required>
-  
-  <datalist id="markaListesi">
-    <option value="APPLE">
-    <option value="SAMSUNG">
-    <option value="XIAOMI">
-    <option value="HUAWEI">
-    <option value="OPPO">
-    <option value="REALME">
-    <option value="INFINIX">
-    <option value="TECNO">
-    <option value="CASPER">
-    <option value="REEDER">
-  </datalist>
+        <input type="text" name="marka" list="markaListesi" class="focusable" placeholder="SEÇİN VEYA YAZIN" required>
+        <datalist id="markaListesi">
+          <option value="APPLE">
+          <option value="SAMSUNG">
+          <option value="XIAOMI">
+          <option value="REDMI">
+          <option value="MI">
+          <option value="POCO">
+          <option value="HUAWEI">
+          <option value="OMIX">
+          <option value="OPPO">
+          <option value="REALME">
+          <option value="INFINIX">
+          <option value="TECNO">
+          <option value="GENERAL MOBILE">
+          <option value="CASPER">
+          <option value="REEDER">
+        </datalist>
       </div>
       <div class="col">
         <label>Model:</label>
@@ -78,16 +83,15 @@
     <div class="row">
       <div class="col">
         <label>İşlem:</label>
-        <select name="islem" class="focusable" required>
+        <select name="islem" id="islem" class="focusable" required>
           <option value="">Seçiniz</option>
-          <option value="Alındı">Alındı</option>
-          <option value="Satıldı">Satıldı</option>
+          <option value="Alındı" selected>Alındı</option> <option value="Satıldı">Satıldı</option>
         </select>
       </div>
       <div class="col">
         <label>Fiyat:</label>
         <div class="input-group">
-          <input type="tel" id="fiyat" name="fiyat" class="focusable" inputmode="numeric" placeholder="Örn: 5.000" required>
+          <input type="tel" id="fiyat" name="fiyat" class="focusable" inputmode="numeric" placeholder="Örn: 5.000">
           <span class="suffix">TL</span>
         </div>
       </div>
@@ -104,11 +108,7 @@
   </form>
 
   <script>
-
-// JS Kodların (Aynen Kalıyor, Sadece focusableInputs otomatik yeni alanları da kapsıyor)
     const form = document.getElementById("myForm");
-    
-    // focusableInputs'u her seferinde güncel listeyi alacak şekilde güncelleyelim
     const getFocusableInputs = () => Array.from(document.querySelectorAll(".focusable"));
 
     form.addEventListener("keydown", function(e) {
@@ -139,6 +139,7 @@
     const message = document.getElementById("message");
     const tarihInput = document.getElementById("tarih");
     const fiyatInput = document.getElementById("fiyat");
+    const islemSelect = document.getElementById("islem");
 
     document.addEventListener("DOMContentLoaded", () => {
       tarihInput.value = new Date().toISOString().split("T")[0];
@@ -157,8 +158,6 @@
       message.style.color = "orange";
 
       const formData = new FormData(form);
-      
-      // Fiyat formatlama
       const raw = formData.get("fiyat") || "";
       const digits = raw.replace(/\D/g, "");
       const n = digits ? Number(digits) : 0;
@@ -170,6 +169,8 @@
           message.textContent = "✅ Kayıt başarılı!";
           message.style.color = "green";
           form.reset();
+          // Reset sonrası tekrar "Alındı"yı seçiyoruz
+          islemSelect.value = "Alındı";
           tarihInput.value = new Date().toISOString().split("T")[0];
         })
         .catch(error => {
@@ -185,6 +186,4 @@
     });
   </script>
 </body>
-
 </html>
-
