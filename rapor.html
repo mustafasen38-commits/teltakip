@@ -18,11 +18,20 @@
     #summary { text-align: center; background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 5px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #007acc; }
     #limitInfo { text-align: center; font-size: 13px; color: #666; margin-bottom: 15px; font-style: italic; }
 
-    /* Arama ve Yazdır Konteynırı */
-    .search-container { max-width: 600px; margin: 0 auto 20px auto; display: flex; gap: 10px; }
-    input#searchInput { flex: 1; padding: 12px 15px; border: 2px solid #ddd; border-radius: 25px; font-size: 16px; outline: none; transition: 0.3s; }
-    .print-btn { background: #27ae60; color: white; border: none; padding: 0 20px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 14px; }
-    .print-btn:hover { background: #219150; }
+    /* Arama Çubuğu */
+    .search-container { max-width: 600px; margin: 0 auto 10px auto; }
+    input#searchInput { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 25px; font-size: 16px; outline: none; transition: 0.3s; }
+
+    /* --- Filtre ve Yazdır Butonları Konteynırı --- */
+    .filter-container { max-width: 600px; margin: 0 auto 20px auto; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+    .f-btn { border: none; padding: 8px 14px; border-radius: 18px; cursor: pointer; font-weight: bold; font-size: 11px; color: white; transition: 0.2s; display: flex; align-items: center; gap: 4px; }
+    .btn-tumu { background: #6c757d; }
+    .btn-stok { background: #f39c12; }
+    .btn-bugun { background: #9b59b6; }
+    .btn-alinan { background: #3498db; }
+    .btn-satilan { background: #e74c3c; }
+    .btn-yazdir { background: #27ae60; }
+    .active-filter { outline: 3px solid #333; transform: scale(0.95); }
 
     /* --- Tablo Tasarımı --- */
     table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
@@ -33,7 +42,7 @@
 
     /* --- MODAL STİLLERİ --- */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); }
-    .modal-content { background: #fff; margin: 2% auto; padding: 0; border-radius: 15px; width: 95%; max-width: 550px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .modal-content { background: #fff; margin: 2% auto; padding: 0; border-radius: 15px; width: 95%; max-width: 550px; overflow: hidden; }
     .modal-header { background: #007acc; color: white; padding: 15px 20px; font-size: 18px; font-weight: bold; display: flex; justify-content: space-between; }
     .modal-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-height: 75vh; overflow-y: auto; }
     .full-row { grid-column: span 2; }
@@ -45,24 +54,11 @@
     .cancel-btn { background: #e0e0e0; color: #333; border: none; padding: 12px; flex: 1; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
     @media (max-width: 850px) {
-      .modal-body { grid-template-columns: 1fr; }
-      .full-row { grid-column: span 1; }
       table, thead, tbody, th, td, tr { display: block; }
       thead tr { display: none; }
       tr { margin-bottom: 15px; border-radius: 12px; background: #fff; padding: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
       td { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f9f9f9; padding: 10px 5px; text-align: right; }
       td::before { content: attr(data-label); font-weight: 700; color: #007acc; font-size: 11px; text-align: left; flex: 1; }
-    }
-
-    /* Yazdırma Esnasında Menüyü ve Butonları Gizle */
-    @media print {
-      .menu, .search-container, #limitInfo, .modal, .cancel-btn, .save-btn, th:last-child, td:last-child {
-        display: none !important;
-      }
-      body { background: white; padding: 0; }
-      table { box-shadow: none; border: 1px solid #000; }
-      th { background: #eee !important; color: black !important; border: 1px solid #000; }
-      td { border: 1px solid #000; }
     }
   </style>
 </head>
@@ -79,13 +75,21 @@
 
   <div class="search-container">
     <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="İSİM, IMEI VEYA TARİH ARA...">
-    <button class="print-btn" onclick="yazdirTablo()">🖨️ YAZDIR</button>
+  </div>
+
+  <div class="filter-container">
+    <button class="f-btn btn-tumu active-filter" onclick="setFilter('tumu', this)">📋 TÜMÜ</button>
+    <button class="f-btn btn-stok" onclick="setFilter('stok', this)">📦 STOK</button>
+    <button class="f-btn btn-bugun" onclick="setFilter('bugun', this)">📅 BUGÜN</button>
+    <button class="f-btn btn-alinan" onclick="setFilter('alinan', this)">📥 ALIM</button>
+    <button class="f-btn btn-satilan" onclick="setFilter('satilan', this)">📤 SATIŞ</button>
+    <button class="f-btn btn-yazdir" onclick="yazdirTablo()">🖨️ YAZDIR</button>
   </div>
 
   <table id="raporTable">
     <thead>
       <tr>
-        <th>AD SOYAD</th><th>MARKA</th><th>MODEL</th><th>IMEI</th><th>İŞLEM</th><th>FİYAT</th><th>TARİH</th><th>NOT</th><th>TEL</th><th>TC</th><th>AKSİYON</th>
+        <th>AD SOYAD</th><th>MARKA</th><th>MODEL</th><th>IMEI</th><th>İŞLEM</th><th>FİYAT</th><th>TARİH</th><th>NOT</th><th>TEL</th><th>TC</th><th>İŞLEM</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -97,13 +101,11 @@
       <div class="modal-body">
         <input type="hidden" id="oldImei">
         <div class="input-group full-row"><label>AD SOYAD</label><input type="text" id="editAd"></div>
-        <div class="input-group"><label>MARKA</label><input type="text" id="editMarka" list="markaListesi">
-          <datalist id="markaListesi"><option value="APPLE"><option value="SAMSUNG"><option value="XIAOMI"><option value="HUAWEI"><option value="OPPO"><option value="REALME"><option value="INFINIX"><option value="TECNO"></datalist>
-        </div>
+        <div class="input-group"><label>MARKA</label><input type="text" id="editMarka"></div>
         <div class="input-group"><label>MODEL</label><input type="text" id="editModel"></div>
         <div class="input-group"><label>IMEI NUMARASI</label><input type="text" id="editImei" maxlength="15"></div>
         <div class="input-group"><label>İŞLEM TÜRÜ</label><select id="editIslem"><option value="ALINDI">ALINDI</option><option value="SATILDI">SATILDI</option></select></div>
-        <div class="input-group"><label>FİYAT (TL)</label><input type="tel" id="editFiyat" placeholder="5.000"></div>
+        <div class="input-group"><label>FİYAT (TL)</label><input type="text" id="editFiyat"></div>
         <div class="input-group"><label>CEP TELEFONU</label><input type="tel" id="editTel"></div>
         <div class="input-group full-row"><label>TC KİMLİK NO</label><input type="number" id="editTc"></div>
         <div class="input-group full-row"><label>NOTLAR</label><textarea id="editNot" rows="3"></textarea></div>
@@ -118,20 +120,63 @@
   <script>
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzb4SWk4Ihk8rMLIyNn6KhyNZU1bf0RCQJc84ML6FVqm3lA9XQgFp0Yg9R0Zgs6kzfLnQ/exec"; 
     let globalData = [];
+    let currentFilter = 'tumu';
     const MAX_VISIBLE = 100;
-
-    // Fiyat Formatlayıcı
-    document.getElementById("editFiyat").addEventListener("input", function() {
-      let d = this.value.replace(/\D/g, "");
-      this.value = d ? new Intl.NumberFormat("tr-TR").format(Number(d)) : "";
-    });
 
     async function loadReport() {
       try {
         const res = await fetch(WEBAPP_URL);
         globalData = await res.json();
         filterTable();
-      } catch (err) { document.getElementById("summary").textContent = "Hata!"; }
+      } catch (err) { document.getElementById("summary").textContent = "Veri yüklenemedi!"; }
+    }
+
+    function setFilter(type, btn) {
+      currentFilter = type;
+      document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active-filter'));
+      btn.classList.add('active-filter');
+      filterTable();
+    }
+
+    function filterTable() {
+      const input = document.getElementById("searchInput");
+      const trMap = { 'İ': 'i', 'I': 'ı', 'Ş': 's', 'Ğ': 'g', 'Ü': 'u', 'Ö': 'o', 'Ç': 'c' };
+      const normalize = (str) => str.toString().toUpperCase().replace(/[İIŞĞÜÖÇ]/g, m => trMap[m] || m).toLowerCase();
+      const query = normalize(input.value.trim());
+      
+      const satilanImeiler = new Set();
+      globalData.forEach(r => {
+        if ((r["İŞLEM"] || "").toUpperCase().includes("SAT")) satilanImeiler.add((r["IMEI"] || "").toString().trim());
+      });
+
+      const bugunStr = new Date().toLocaleDateString("tr-TR");
+      let allData = globalData.slice().reverse();
+
+      let filtered = allData.filter(row => {
+        const islem = (row["İŞLEM"] || "").toUpperCase();
+        const imei = (row["IMEI"] || "").toString().trim();
+        const rowDate = row["TARİH"] ? new Date(row["TARİH"]).toLocaleDateString("tr-TR") : "-";
+
+        if (currentFilter === 'stok') {
+          if (islem.includes("SAT")) return false;
+          if (imei !== "" && imei !== "-" && satilanImeiler.has(imei)) return false;
+        } 
+        else if (currentFilter === 'bugun' && rowDate !== bugunStr) return false;
+        else if (currentFilter === 'alinan' && !islem.includes("AL")) return false;
+        else if (currentFilter === 'satilan' && !islem.includes("SAT")) return false;
+
+        if (query === "") return true;
+        return Object.keys(row).some(key => {
+          let val = row[key] ? row[key].toString() : "";
+          if (key.toUpperCase() === "TARİH" && val !== "-") val = new Date(val).toLocaleDateString("tr-TR");
+          return normalize(val).includes(query);
+        });
+      });
+
+      let displayData = (query === "" && currentFilter === 'tumu') ? filtered.slice(0, MAX_VISIBLE) : filtered;
+      renderTable(displayData, input.value.trim());
+      document.getElementById("limitInfo").innerHTML = `<b>${filtered.length}</b> kayıt listelendi.`;
+      updateSummary(globalData);
     }
 
     function renderTable(data, query = "") {
@@ -142,9 +187,8 @@
       data.forEach(row => {
         const tr = document.createElement("tr");
         cols.forEach(col => {
-          let val = row[col] || row[col.toLowerCase()] || "-";
+          let val = row[col] || "-";
           if (col === "TARİH" && val !== "-") val = new Date(val).toLocaleDateString("tr-TR");
-          
           const td = document.createElement("td");
           td.setAttribute("data-label", col);
           let txt = val.toString().toUpperCase();
@@ -153,59 +197,29 @@
             const regex = new RegExp(`(${query.toUpperCase()})`, "g");
             td.innerHTML = txt.replace(regex, "<mark>$1</mark>");
           } else { td.innerText = txt; }
-
-          if (col === "FİYAT") {
-            td.className = "fiyat-sutun";
-            if (!td.innerHTML.includes("TL")) td.innerHTML += " TL";
-          }
+          
+          if (col === "FİYAT") td.className = "fiyat-sutun";
           tr.appendChild(td);
         });
 
         const rowDataStr = encodeURIComponent(JSON.stringify(row));
         const tdAks = document.createElement("td");
-        tdAks.setAttribute("data-label", "AKSİYON");
-        tdAks.innerHTML = `<div style="display:flex;gap:5px"><button onclick='openModal("${rowDataStr}")' style="background:#ffa502;color:white;border:none;padding:8px;border-radius:5px;cursor:pointer">DÜZENLE</button><button onclick="handleDelete(this, '${encodeURIComponent(row["IMEI"] || "")}')" style="background:#ff4757;color:white;border:none;padding:8px;border-radius:5px;cursor:pointer">SİL</button></div>`;
+        tdAks.setAttribute("data-label", "İŞLEM");
+        tdAks.innerHTML = `<div style="display:flex;gap:5px"><button onclick='openModal("${rowDataStr}")' style="background:#ffa502;color:white;border:none;padding:8px;border-radius:5px;cursor:pointer">DÜZENLE</button><button onclick="handleDelete('${encodeURIComponent(row["IMEI"] || "")}')" style="background:#ff4757;color:white;border:none;padding:8px;border-radius:5px;cursor:pointer">SİL</button></div>`;
         tr.appendChild(tdAks);
         tbody.appendChild(tr);
       });
     }
 
-    function filterTable() {
-      const input = document.getElementById("searchInput");
-      const trMap = { 'İ': 'i', 'I': 'ı', 'Ş': 's', 'Ğ': 'g', 'Ü': 'u', 'Ö': 'o', 'Ç': 'c' };
-      const normalize = (str) => str.toString().toUpperCase().replace(/[İIŞĞÜÖÇ]/g, m => trMap[m] || m).toLowerCase();
-
-      const query = normalize(input.value.trim());
-      let allData = globalData.slice().reverse();
-
-      let filtered = allData.filter(row => {
-        if (query === "") return true;
-        return Object.keys(row).some(key => {
-          let val = row[key] ? row[key].toString() : "";
-          if (key.toUpperCase() === "TARİH" && val !== "-") val = new Date(val).toLocaleDateString("tr-TR");
-          return normalize(val).includes(query);
-        });
-      });
-
-      let displayData = query === "" ? filtered.slice(0, MAX_VISIBLE) : filtered;
-      renderTable(displayData, input.value.trim());
-      document.getElementById("limitInfo").innerHTML = query === "" ? `Toplam ${globalData.length} kayıt. Son 100 gösteriliyor.` : `<b>${filtered.length}</b> sonuç bulundu.`;
-      updateSummary(globalData);
-    }
-
     function yazdirTablo() {
       const table = document.getElementById("raporTable").cloneNode(true);
-      // Yazdırma sayfasında Aksiyon (Son) sütununu sil
       const rows = table.querySelectorAll("tr");
-      rows.forEach(row => {
-        if (row.lastElementChild) row.removeChild(row.lastElementChild);
-      });
+      rows.forEach(row => { if (row.lastElementChild) row.removeChild(row.lastElementChild); });
 
-      const win = window.open("", "", "height=700,width=900");
+      const win = window.open("", "", "height=700,width=1000");
       win.document.write("<html><head><title>Yazdır</title>");
-      win.document.write("<style>table{border-collapse:collapse;width:100%;font-family:sans-serif;} th,td{border:1px solid #ddd;padding:8px;font-size:11px;text-align:left;} th{background:#eee;}</style>");
-      win.document.write("</head><body>");
-      win.document.write("<h2 style='text-align:center'>KAYIT RAPORU ÇIKTISI</h2>");
+      win.document.write("<style>table{border-collapse:collapse;width:100%;font-family:sans-serif;} th,td{border:1px solid #000;padding:6px;font-size:10px;text-align:left;} th{background:#eee;}</style>");
+      win.document.write("</head><body><h2 style='text-align:center'>KAYIT RAPORU</h2>");
       win.document.write(table.outerHTML);
       win.document.write("</body></html>");
       win.document.close();
@@ -215,7 +229,7 @@
     function updateSummary(data) {
       let a = 0, s = 0;
       data.forEach(r => {
-        let i = (r["İŞLEM"] || r["islem"] || "").toString().toUpperCase();
+        let i = (r["İŞLEM"] || "").toUpperCase();
         if (i.includes("AL")) a++; else if (i.includes("SAT")) s++;
       });
       document.getElementById("summary").textContent = `TOPLAM: ${data.length} | ALINAN: ${a} | SATILAN: ${s}`;
@@ -224,15 +238,15 @@
     function openModal(enc) {
       const r = JSON.parse(decodeURIComponent(enc));
       document.getElementById("oldImei").value = r["IMEI"] || "";
-      document.getElementById("editAd").value = r["AD SOYAD"] || r["name"] || "";
+      document.getElementById("editAd").value = r["AD SOYAD"] || "";
       document.getElementById("editMarka").value = r["MARKA"] || "";
       document.getElementById("editModel").value = r["MODEL"] || "";
       document.getElementById("editImei").value = r["IMEI"] || "";
-      document.getElementById("editIslem").value = (r["İŞLEM"] || r["islem"] || "ALINDI").toUpperCase().includes("SAT") ? "SATILDI" : "ALINDI";
-      document.getElementById("editFiyat").value = (r["FİYAT"] || r["fiyat"] || "").toString().replace(/[^\d]/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      document.getElementById("editIslem").value = (r["İŞLEM"] || "ALINDI").toUpperCase().includes("SAT") ? "SATILDI" : "ALINDI";
+      document.getElementById("editFiyat").value = r["FİYAT"] || "";
       document.getElementById("editNot").value = r["NOT"] || "";
-      document.getElementById("editTel").value = r["TEL"] || r["cep_no"] || "";
-      document.getElementById("editTc").value = r["TC"] || r["tc_kimlik"] || "";
+      document.getElementById("editTel").value = r["TEL"] || "";
+      document.getElementById("editTc").value = r["TC"] || "";
       document.getElementById("editModal").style.display = "block";
     }
 
@@ -249,7 +263,7 @@
         model: document.getElementById("editModel").value,
         imei: document.getElementById("editImei").value,
         islem: document.getElementById("editIslem").value,
-        fiyat: document.getElementById("editFiyat").value + " TL",
+        fiyat: document.getElementById("editFiyat").value,
         not: document.getElementById("editNot").value,
         tel: document.getElementById("editTel").value,
         tc: document.getElementById("editTc").value
@@ -258,8 +272,8 @@
       location.reload(); 
     }
 
-    async function handleDelete(btn, imei) {
-      if(confirm("Silinsin mi?")) {
+    async function handleDelete(imei) {
+      if(confirm("Bu kaydı silmek istediğinize emin misiniz?")) {
         await fetch(WEBAPP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "delete", imei: decodeURIComponent(imei) }) });
         location.reload();
       }
