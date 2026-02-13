@@ -74,18 +74,18 @@
       </div>
     </div>
 
-    <label>IMEI:</label>
+    <label>IMEI / Seri No:</label>
     <input type="text" name="imei" class="focusable" required maxlength="15"
-           pattern="\d{15}" title="IMEI 15 haneli rakam olmalı"
-           inputmode="numeric"
-           oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
+           placeholder="15 HANELİ IMEI VEYA SN"
+           oninput="this.value = this.value.toUpperCase().slice(0,15)">
 
     <div class="row">
       <div class="col">
         <label>İşlem:</label>
         <select name="islem" id="islem" class="focusable" required>
           <option value="">Seçiniz</option>
-          <option value="Alındı" selected>Alındı</option> <option value="Satıldı">Satıldı</option>
+          <option value="Alındı" selected>Alındı</option> 
+          <option value="Satıldı">Satıldı</option>
         </select>
       </div>
       <div class="col">
@@ -111,6 +111,7 @@
     const form = document.getElementById("myForm");
     const getFocusableInputs = () => Array.from(document.querySelectorAll(".focusable"));
 
+    // Enter ile alt kutuya geçme
     form.addEventListener("keydown", function(e) {
       if (e.key === "Enter") {
         if (e.target.tagName !== "TEXTAREA") {
@@ -126,25 +127,18 @@
       }
     });
 
-    form.addEventListener("submit", function(e) {
-      const inputs = this.querySelectorAll("input, textarea");
-      inputs.forEach(inp => {
-        if(inp.type !== 'date' && inp.type !== 'tel' && inp.type !== 'number') {
-          inp.value = inp.value.toUpperCase();
-        }
-      });
-    });
-
     const scriptURL = "https://script.google.com/macros/s/AKfycbzb4SWk4Ihk8rMLIyNn6KhyNZU1bf0RCQJc84ML6FVqm3lA9XQgFp0Yg9R0Zgs6kzfLnQ/exec";
     const message = document.getElementById("message");
     const tarihInput = document.getElementById("tarih");
     const fiyatInput = document.getElementById("fiyat");
     const islemSelect = document.getElementById("islem");
 
+    // Varsayılan tarih Bugün
     document.addEventListener("DOMContentLoaded", () => {
       tarihInput.value = new Date().toISOString().split("T")[0];
     });
 
+    // Fiyat formatlama (Noktalı)
     fiyatInput.addEventListener("input", () => {
       const digits = fiyatInput.value.replace(/\D/g, "");
       if (!digits) { fiyatInput.value = ""; return; }
@@ -152,30 +146,45 @@
       fiyatInput.value = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n);
     });
 
+    // Form Gönderme
     form.addEventListener("submit", e => {
       e.preventDefault();
+      
+      // Butonu kilitle ve mesaj ver
+      const submitBtn = document.getElementById("submitBtn");
+      submitBtn.disabled = true;
       message.textContent = "⏳ Gönderiliyor...";
       message.style.color = "orange";
 
       const formData = new FormData(form);
-      const raw = formData.get("fiyat") || "";
-      const digits = raw.replace(/\D/g, "");
+      
+      // Fiyatı "5.000 TL" formatına getir
+      const rawFiyat = formData.get("fiyat") || "";
+      const digits = rawFiyat.replace(/\D/g, "");
       const n = digits ? Number(digits) : 0;
-      const formatted = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n) + " TL";
-      formData.set("fiyat", formatted);
+      const formattedFiyat = new Intl.NumberFormat("tr-TR").format(n) + " TL";
+      formData.set("fiyat", formattedFiyat);
+
+      // Verileri Büyük Harfe Çevir (Date ve Sayılar Hariç)
+      for (let [key, value] of formData.entries()) {
+        if (typeof value === 'string' && key !== 'tarih') {
+          formData.set(key, value.toUpperCase());
+        }
+      }
 
       fetch(scriptURL, { method: "POST", body: formData })
         .then(response => {
           message.textContent = "✅ Kayıt başarılı!";
           message.style.color = "green";
           form.reset();
-          // Reset sonrası tekrar "Alındı"yı seçiyoruz
+          submitBtn.disabled = false;
           islemSelect.value = "Alındı";
           tarihInput.value = new Date().toISOString().split("T")[0];
         })
         .catch(error => {
           message.textContent = "❌ Hata oluştu!";
           message.style.color = "red";
+          submitBtn.disabled = false;
         });
     });
 
